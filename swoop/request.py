@@ -25,6 +25,7 @@ class Request(object):
 
         self.method = 'GET'
         self.follow_redirects = True
+        self.referer = None
 
     @property
     def path_qs(self):

@@ -50,10 +50,9 @@ class Session(object):
         while count:
             headers = self._get_default_headers()
 
-            try:
-                del self._content
-            except AttributeError:
-                pass
+            if request.referer:
+                headers['Referer'] = request.referer.url if\
+                    isinstance(request.referer, Response) else request.referer
 
             self._set_cookies(headers, request)
             response = request.request(self._pool, headers)

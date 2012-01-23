@@ -1,7 +1,7 @@
 from cStringIO import StringIO
 from lxml import etree
+from .exceptions import ContentException
 
-class XPathException(Exception): pass
 class XPathWrapper(object):
     def __init__(self, content):
         self.content = content
@@ -20,20 +20,20 @@ class XPathWrapper(object):
         result = self.tree.xpath(xpath)
 
         if not result:
-            raise XPathException('XPath not found [%s]' % xpath)
+            raise ContentException('XPath not found [%s]' % xpath)
 
         if len(result) > 1:
-            raise XPathException('There is more than one element [%s]' % xpath)
+            raise ContentException('There is more than one element [%s]' % xpath)
 
         try:
             return result[0]
         except IndexError:
-            raise XPathException('XPath not found [%s]' % xpath)
+            raise ContentException('XPath not found [%s]' % xpath)
 
     def many(self, xpath):
         result = self.tree.xpath(xpath)
         if not result:
-            raise XPathException('XPath not found [%s]' % xpath)
+            raise ContentException('XPath not found [%s]' % xpath)
 
         return result
 

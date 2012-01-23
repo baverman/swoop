@@ -2,6 +2,7 @@ import zlib, gzip
 from cStringIO import StringIO
 
 from .xpath import XPathWrapper
+from .form import get_request_for_form
 
 class Response(object):
     def __init__(self, session, response):
@@ -16,6 +17,7 @@ class Response(object):
             self.raw_content = gzip.GzipFile('', 'rb', 9, StringIO(self.raw_content)).read()
 
         self.xpath = XPathWrapper(self.raw_content)
+        self.url = response.url
 
     @property
     def content(self):
@@ -30,3 +32,7 @@ class Response(object):
     def save_content(self, filename):
         with open(filename, mode='w') as f:
             f.write(self.raw_content)
+
+    def form(self, action=None, id=None, idx=None, name=None, submit=True, values=None):
+        return get_request_for_form(self, action=action, id=id, idx=idx, name=name, submit=submit,
+            values=values)
