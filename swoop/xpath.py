@@ -3,8 +3,9 @@ from lxml import etree
 from .exceptions import ContentException
 
 class XPathWrapper(object):
-    def __init__(self, content):
+    def __init__(self, content, encoding=None):
         self.content = content
+        self.encoding = encoding
 
     @property
     def tree(self):
@@ -13,7 +14,11 @@ class XPathWrapper(object):
         except AttributeError:
             pass
 
-        self._tree = etree.parse(StringIO(self.content), etree.HTMLParser())
+        pkwargs = {}
+        if self.encoding:
+            pkwargs['encoding'] = self.encoding
+
+        self._tree = etree.parse(StringIO(self.content), etree.HTMLParser(**pkwargs))
         return self._tree
 
     def __call__(self, xpath):

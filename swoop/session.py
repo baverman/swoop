@@ -8,8 +8,8 @@ from .response import Response
 MAX_REDIRECTS = 10
 
 class Session(object):
-    def __init__(self):
-        self._pool = ConnectionPool()
+    def __init__(self, debuglevel=None):
+        self._pool = ConnectionPool(debuglevel=debuglevel)
         self.cookies = defaultdict(dict)
         self.encoding = None
         self.user_agent = None
@@ -19,7 +19,7 @@ class Session(object):
             if request.host.endswith(domain) for c in cookies.itervalues()]
 
         if cookies:
-            headers['Cookie'] = ';'.join(c.output([], '') for c in cookies)
+            headers['Cookie'] = '; '.join(c.output([], '').lstrip() for c in cookies)
 
     def _get_cookies(self, response):
         c = SimpleCookie()
@@ -56,12 +56,18 @@ class Session(object):
 
             self._set_cookies(headers, request)
             response = request.request(self._pool, headers)
+            response_data = response.read()
             self._get_cookies(response)
 
             if 300 <= response.status < 400:
                 request = Request(response.getheader('location'))
+                request.referer = response.url
                 count -= 1
             else:
                 break
 
-        return Response(self, response)
+        return Response(self, response, response_data)
+
+    def clear(self):
+        self._pool.clear()
+        self.cookies.clear()

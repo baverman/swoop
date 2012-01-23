@@ -19,3 +19,9 @@ class ConnectionPool(object):
         conn = self.connections[key] = cls(host, port, timeout=timeout or self.default_timeout)
         conn.debuglevel = self.debuglevel
         return conn
+
+    def clear(self):
+        for conn in self.connections.itervalues():
+            conn.close()
+
+        self.connections.clear()

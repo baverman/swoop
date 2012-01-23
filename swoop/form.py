@@ -61,6 +61,10 @@ def add_input(params, input):
     disabled = input.attrib.get('disabled', False)
     params[input.attrib['name']] = None if disabled else input.attrib.get('value', '')
 
+def add_file(files, input):
+    #disabled = input.attrib.get('disabled', False)
+    files[input.attrib['name']] = ('', '')
+
 def add_submit(params, input, values):
     name = input.attrib['name']
     params[name] = input.attrib['value']
@@ -90,10 +94,13 @@ def get_request_for_form(response, action=None, id=None, idx=None, name=None, su
             'action=[%s] id=[%s] name=[%s]' % (str(action), str(id), str(name)))
 
     form = forms[0]
-    request = Request(urlparse.urljoin(response.url, form.attrib.get('action', response.url)))
+    request = Request(
+        urlparse.urljoin(response.url, form.attrib.get('action', response.url)),
+        session_ref=response.session_ref)
 
     submit_already_added = submit is False
     params = OrderedDict()
+    files = OrderedDict()
 
     possible_values = {}
     for input in form.xpath('.//*[self::input or self::select or self::textarea]'):
@@ -118,6 +125,8 @@ def get_request_for_form(response, action=None, id=None, idx=None, name=None, su
             add_checkbox(params, input, possible_value)
         elif input_type == 'select':
             add_select(params, input, possible_value)
+        elif input_type == 'file':
+            add_file(files, input)
         elif input_type in ('submit', 'image', 'button'):
             if not submit_already_added:
                 if submit is True or input.attrib['name'] == submit:
@@ -145,6 +154,7 @@ def get_request_for_form(response, action=None, id=None, idx=None, name=None, su
             else:
                 params[vname] = value
 
+    request.files = files
     if form.attrib.get('method', 'GET').lower() == 'post':
         request.params = params
     else:
