@@ -83,6 +83,9 @@ class Session(object):
         return Response(self, response, response_data)
 
     def request(self, url, baseurl=None):
+        if isinstance(baseurl, (Request, Response)):
+            baseurl = baseurl.url
+
         return Request(url, baseurl, ref(self))
 
     def clear(self):

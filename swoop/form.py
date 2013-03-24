@@ -94,8 +94,7 @@ def get_request_for_form(response, action=None, id=None, idx=None, name=None, su
             'action=[%s] id=[%s] name=[%s]' % (str(action), str(id), str(name)))
 
     form = forms[0]
-    request = Request(
-        urlparse.urljoin(response.url, form.attrib.get('action', response.url)),
+    request = Request(response.url, form.attrib.get('action', response.url),
         session_ref=response.session_ref)
 
     submit_already_added = submit is False

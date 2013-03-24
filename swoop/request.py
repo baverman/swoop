@@ -9,10 +9,7 @@ from mimetypes import guess_type
 class Request(object):
     def __init__(self, url, baseurl=None, session_ref=None):
         if baseurl:
-            if isinstance(baseurl, Request):
-                baseurl = baseurl.url
-
-            url = urljoin(baseurl.get_url(), url)
+            url = urljoin(baseurl, url)
 
         self.session_ref = session_ref
 
