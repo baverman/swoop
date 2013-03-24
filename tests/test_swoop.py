@@ -2,8 +2,8 @@ from swoop import Session
 
 def test_simple():
     s = Session(debuglevel=1)
-    r = s.request('http://fansubs.ru')
-    r = s.request(r.form(idx=0, values={'query':'haruhi'}))
+    r = s('http://fansubs.ru')
+    r = r.form(idx=0, values={'query':'haruhi'}).fetch()
     r.save_content('/tmp/wow.html')
     assert False
 

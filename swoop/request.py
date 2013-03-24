@@ -74,7 +74,7 @@ class Request(object):
         assert self.session_ref
         session = self.session_ref()
         assert session
-        return session.request(self)
+        return session(self)
 
 def post_multipart(host, selector, fields, files):
     """

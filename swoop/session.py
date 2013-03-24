@@ -56,7 +56,7 @@ class Session(object):
             'Connection': 'Keep-Alive'
         }
 
-    def request(self, request):
+    def __call__(self, request):
         if isinstance(request, basestring):
             request = Request(request)
 
@@ -82,7 +82,7 @@ class Session(object):
 
         return Response(self, response, response_data)
 
-    def __call__(self, url, baseurl):
+    def request(self, url, baseurl=None):
         return Request(url, baseurl, ref(self))
 
     def clear(self):
