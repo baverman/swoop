@@ -1,4 +1,3 @@
-import urlparse
 from collections import OrderedDict
 
 from .request import Request
@@ -142,7 +141,7 @@ def get_request_for_form(response, action=None, id=None, idx=None, name=None, su
                     vname, '] ['.join(params.keys())))
 
             if value is None:
-                params[vname] = None
+                params.pop(vname, None)
             elif vname in possible_values:
                 if value not in possible_values[vname].values:
                     raise ContentException(
