@@ -31,11 +31,11 @@ class Response(object):
         self._content = self.raw_content.decode(self.encoding)
         return self._content
 
-    def save_content(self, filename):
+    def save(self, filename):
         with open(filename, mode='w') as f:
             f.write(self.raw_content)
 
-        return filename
+        return self
 
     def form(self, action=None, id=None, idx=None, name=None, submit=True, values=None):
         return get_request_for_form(self, action=action, id=id, idx=idx, name=name, submit=submit,
