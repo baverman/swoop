@@ -1,5 +1,8 @@
 from collections import defaultdict
 from Cookie import SimpleCookie
+from cookielib import Cookie
+
+from weakref import ref
 
 from .pool import ConnectionPool
 from .request import Request
@@ -16,10 +19,21 @@ class Session(object):
 
     def _set_cookies(self, headers, request):
         cookies = [c for domain, cookies in self.cookies.iteritems()
-            if request.host.endswith(domain) for c in cookies.itervalues()]
+            if request.host.endswith(domain) or domain == '_all' for c in cookies.itervalues()]
 
         if cookies:
             headers['Cookie'] = '; '.join(c.output([], '').lstrip() for c in cookies)
+
+    def set_cookie(self, name, value=None, domain='_all'):
+        if isinstance(name, Cookie):
+            name, value = name.name, name.value
+            domain = name.domain or domain
+
+        c = SimpleCookie()
+        c[name] = value
+
+        for cookie in c.itervalues():
+            self.cookies[domain.rstrip(',').lstrip('.')][cookie.key] = cookie
 
     def _get_cookies(self, response):
         c = SimpleCookie()
@@ -52,7 +66,7 @@ class Session(object):
 
             if request.referer:
                 headers['Referer'] = request.referer.url if\
-                    isinstance(request.referer, Response) else request.referer
+                    isinstance(request.referer, (Response, Request)) else request.referer
 
             self._set_cookies(headers, request)
             response = request.request(self._pool, headers)
@@ -67,6 +81,9 @@ class Session(object):
                 break
 
         return Response(self, response, response_data)
+
+    def __call__(self, url, baseurl):
+        return Request(url, baseurl, ref(self))
 
     def clear(self):
         self._pool.clear()
