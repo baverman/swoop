@@ -88,3 +88,23 @@ class Session(object):
     def clear(self):
         self._pool.clear()
         self.cookies.clear()
+
+    def get_state(self):
+        result = {}
+        for domain, cookies in self.cookies.iteritems():
+            for cookie in cookies.itervalues():
+                result.setdefault(domain, []).append(
+                    cookie.output(None, '').lstrip())
+
+        return result
+
+    def set_state(self, state):
+        self.cookies.clear()
+
+        for domain, values in state.iteritems():
+            c = SimpleCookie()
+            for v in values:
+                c.load(v)
+
+            for cookie in c.itervalues():
+                self.cookies[domain][cookie.key] = cookie
