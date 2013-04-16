@@ -66,8 +66,13 @@ def add_file(files, input):
 
 def add_submit(params, input, values):
     name = input.attrib['name']
-    params[name] = input.attrib['value']
-    values.add(input.attrib['value'])
+    if input.tag == 'button':
+        value = input.text or ''
+    else:
+        value = input.attrib['value']
+
+    params[name] = value
+    values.add(value)
 
 def get_request_for_form(response, action=None, id=None, idx=None, name=None, submit=True, values=None):
     forms = []
@@ -101,13 +106,15 @@ def get_request_for_form(response, action=None, id=None, idx=None, name=None, su
     files = OrderedDict()
 
     possible_values = {}
-    for input in form.xpath('.//*[self::input or self::select or self::textarea]'):
+    for input in form.xpath('.//*[self::input or self::select or self::textarea or self::button]'):
         input_name = input.attrib.get('name', None)
         if not input_name:
             continue
 
         if input.tag == 'input':
             input_type = input.attrib.get('type', 'text').lower()
+        elif input.tag == 'button':
+            input_type = input.attrib.get('type', 'submit').lower()
         elif input.tag == 'select':
             input_type = 'select'
         elif input.tag == 'textarea':
